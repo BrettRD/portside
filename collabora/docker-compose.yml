@@ -1,0 +1,26 @@
+version: '3.4'
+services:
+
+  app:
+    image: collabora/code
+    container_name: collabora
+    restart: unless-stopped
+    environment:
+      - "extra_params=--o:ssl.enable=false --o:ssl.termination=true"
+      - DONT_GEN_SSL_CERT=1
+      - username=${USER}
+      - password=${PASS}
+      #- dictionaries=de en es
+      - domain=${NC_HOST}
+      - VIRTUAL_HOST=${WEB_HOST}
+      - LETSENCRYPT_HOST=${WEB_HOST}
+      - VIRTUAL_PORT=9980
+    networks:
+      - proxy-tier
+
+
+networks:
+  proxy-tier:
+    external:
+      name:  ssl-gateway
+

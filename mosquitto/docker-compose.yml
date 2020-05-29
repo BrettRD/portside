@@ -1,0 +1,46 @@
+version: '3.4'
+
+# load a mosquitto broker
+# have nginx-proxy and le-companion negotiate the certs
+# use the reverse proxy to ssl offload websockets and http on port 443
+# otherwise use mosquitto's ports and SSL libs.
+
+services:
+
+  broker:
+    image: eclipse-mosquitto
+    #restart: unless-stopped
+    container_name: mosquitto
+    environment:
+      - VIRTUAL_HOST=${WEB_HOST}
+      - LETSENCRYPT_HOST=${WEB_HOST}
+      - VIRTUAL_PORT=8080
+    volumes:
+      - ./mosquitto/log:/mosquitto/log:rw
+      - ./mosquitto/data:/mosquitto/data/
+      - ./mosquitto/config:/mosquitto/config:ro
+      - certs:/mosquitto/certs:ro
+      - ./htdocs:/mosquitto/htdocs
+    #odd user id in the container has trouble writing logs
+    user: 1000:1883
+    # expose websocket port to nginx-proxy
+    expose:
+      - "8080"
+    # run MQTT natively
+    ports:
+      - 1883:1883
+      - 8883:8883
+      #- 8080:8080
+    networks:
+      - proxy-tier
+
+
+volumes:
+  certs:
+    external: true
+    name: ssl-gateway-certs
+
+networks:
+  proxy-tier:
+    external:
+      name: ssl-gateway

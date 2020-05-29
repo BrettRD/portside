@@ -1,0 +1,18 @@
+# topics listed before the first user are for anonymous clients
+
+# public data appears on a public topic?
+topic read public/#
+
+# trusted developer user
+user _you_
+topic readwrite #
+topic read $SYS/#
+
+# location tracking for regular phone
+user _your_phone_
+topic readwrite owntracks/#
+
+# bridge to home broker
+user home-bridge
+topic readwrite $SYS/#
+topic readwrite #

@@ -1,0 +1,18 @@
+
+version: '3'
+services:
+  folio:
+    image: httpd
+    volumes:
+      - ./htdocs:/usr/local/apache2/htdocs/:ro
+    environment:
+      - "VIRTUAL_HOST=${WEB_HOST}"
+      - "LETSENCRYPT_HOST=${WEB_HOST}"
+    networks:
+      - proxy-tier
+
+networks:
+  proxy-tier:
+    external:
+      name:  ssl-gateway
+

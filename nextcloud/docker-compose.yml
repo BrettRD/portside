@@ -1,0 +1,62 @@
+version: '3.4'
+services:
+
+  db:
+    image: mariadb
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    restart: unless-stopped
+    volumes:
+      - database:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    networks:
+      - nextcloud
+
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    networks:
+      - nextcloud
+
+  app:
+    image: nextcloud:stable-apache
+    container_name: nextcloud
+    restart: unless-stopped
+    volumes:
+      - nextcloud:/var/www/html
+    environment:
+      - REDIS_HOST=redis
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - VIRTUAL_HOST=${WEB_HOST}
+      - LETSENCRYPT_HOST=${WEB_HOST}
+      #- NEXTCLOUD_ADMIN_USER=${NEXTCLOUD_ADMIN_USER}
+      #- NEXTCLOUD_ADMIN_PASSWORD=${NEXTCLOUD_ADMIN_PASSWORD}
+      #- NEXTCLOUD_TRUSTED_DOMAINS=${WEB_HOST}
+    depends_on:
+      - db
+      - redis
+    networks:
+      - nextcloud
+      - proxy-tier
+
+networks:
+  nextcloud:
+  proxy-tier:
+    external:
+      name:  ssl-gateway
+
+volumes:
+  nextcloud:
+    external: true
+    name: nextcloud-html
+  database:
+    external: true
+    name: nextcloud-db
+

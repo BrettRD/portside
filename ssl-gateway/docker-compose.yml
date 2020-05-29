@@ -1,0 +1,79 @@
+version: '3.4'
+
+# this is the nginx reverse-proxy ssl gateway for personal infrastructure.
+
+services:
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: nginx-proxy
+    #labels:
+    #    com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - conf:/etc/nginx/conf.d:ro
+      - vhost:/etc/nginx/vhost.d:ro
+      - html:/usr/share/nginx/html:ro
+      - certs:/etc/nginx/certs:ro
+    labels:
+      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy"
+    networks:
+      - proxy-tier
+
+
+  nginx-proxy-gen:
+    image: jwilder/docker-gen
+    container_name: nginx-proxy-gen
+    restart: unless-stopped
+    command: -notify-sighup nginx-proxy -watch /etc/docker-gen/templates/nginx.tmpl /etc/nginx/conf.d/default.conf
+    volumes:
+      - conf:/etc/nginx/conf.d
+      - vhost:/etc/nginx/vhost.d
+      - certs:/etc/nginx/certs:ro
+      - ./nginx.tmpl:/etc/docker-gen/templates/nginx.tmpl:ro
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    labels:
+      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.docker_gen"
+    networks:
+      - proxy-tier
+
+
+  nginx-proxy-letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: nginx-proxy-le
+    restart: unless-stopped
+    volumes:
+      - conf:/etc/nginx/conf.d
+      - certs:/etc/nginx/certs:rw
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - "DEFAULT_EMAIL=${DEFAULT_EMAIL}"
+    networks:
+      - proxy-tier
+    depends_on:
+      - nginx-proxy
+
+volumes:
+  conf:
+    external: true
+    name: ssl-gateway-conf
+  vhost:
+    external: true
+    name: ssl-gateway-vhost
+  html:
+    external: true
+    name: ssl-gateway-html
+  certs:
+    external: true
+    name: ssl-gateway-certs
+
+
+
+networks:
+  proxy-tier:
+    external:
+      name:  ssl-gateway
