@@ -10,8 +10,8 @@ Uses the fabulous nginx-proxy suite to automate certificate management and SSL o
 ## Nextcloud
 Convenient cloud storage with permissions that other people don't seem to have trouble navigating.
 
-### Collabora
-libre office as a plugin, used on nextcloud. There seems to be a shortage of working examples of collabora/nextcloud/ssl
+## Collabora
+libreoffice as a plugin, used on nextcloud. There seems to be a shortage of working examples of collabora/nextcloud/ssl
 
 ## Mosquitto
 MQTT broker for IoT type shenanigans.
@@ -25,16 +25,16 @@ Taskwarrior sync server, low-nonsense task list that has CLI and android clients
 
 # setup and backup
 
-These examples are not perfect, but once the settings are in, they should all load and run with 'sudo docker-compose up' without error.  Let me know about any problems there.
+These examples are not perfect, but once the settings are in, they should all load and run with `sudo docker-compose up` without error.  Let me know about any problems there.
 
 The following named docker volumes need to exist on the host machine:
-* 'ssl-gateway-conf'
-* 'ssl-gateway-vhost'
-* 'ssl-gateway-html'
-* 'ssl-gateway-certs'
-* 'nextcloud-html'
-* 'nextcloud-db'
-create them with 'sudo docker volume create volume_name'
+* `ssl-gateway-conf`
+* `ssl-gateway-vhost`
+* `ssl-gateway-html`
+* `ssl-gateway-certs`
+* `nextcloud-html`
+* `nextcloud-db`
+create them with `sudo docker volume create volume_name`
 
 The SSL-gateway volumes are named on the host so that they are accessible by other containers. Mosquitto accesses the certificates directly to encrypt MQTT traffic.  These volumes don't store anything that can't be regenerated easily.
 
