@@ -4,9 +4,9 @@ This config uses nginx-proxy and le-companion to negotiate SSL certificates and 
 
 Mosquitto will access the SSL certificates directly to serve encrypted MQTT.
 
-* put your domain name in .env
-* select the matching certificate for mqtt over ssl under 'config/conf.d/ssl_8883.conf' and uncomment the rest
-* sudo docker-compose up -d
+* put your domain name in `.env`
+* select the matching certificate for mqtt over ssl under `config/conf.d/ssl_8883.conf` and uncomment the rest
+* `sudo docker-compose up -d`
 
 
 It'll probably fail the first time while le-companion negotiates a cert from Lets Encrypt, wait a minute and try again.
